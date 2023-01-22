@@ -3,6 +3,8 @@ import * as admin from 'firebase-admin';
 import { parseNumbers } from 'xml2js/lib/processors';
 import { dronesInstance, pilotsInstance } from './axios';
 import { DronesResponse, Report } from '../global';
+import validateJSON from '../validators/validator';
+import { dronesSchema, pilotSchema } from '../validators/schemas';
 
 /**
  * @description Fetch XML data from API using axiosInstance
@@ -52,7 +54,8 @@ export const fetchDrones = async () => {
   try {
     const xmlString = await fetchXML();
     const jsonObj = await parseXML(xmlString);
-    return jsonObj;
+    const validatedJsonObj = validateJSON(dronesSchema, jsonObj);
+    return validatedJsonObj;
   } catch (error) {
     console.log('fetchData Validate Error: ', error);
     throw error;
@@ -63,7 +66,8 @@ export const fetchPilot = async (id: string) => {
   try {
     const response = await pilotsInstance.get(`/${id}`);
     const jsonObj = response.data;
-    return jsonObj;
+    const validatedJsonObj = validateJSON(pilotSchema, jsonObj);
+    return validatedJsonObj;
   } catch (error) {
     console.log('fetchPilot Error');
     throw error;
