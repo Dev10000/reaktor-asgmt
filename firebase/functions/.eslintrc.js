@@ -1,31 +1,36 @@
 module.exports = {
-  root: true,
   env: {
-    es6: true,
+    es2021: true,
     node: true,
   },
   extends: [
-    "eslint:recommended",
-    "plugin:import/errors",
-    "plugin:import/warnings",
-    "plugin:import/typescript",
-    "google",
-    "plugin:@typescript-eslint/recommended",
+    'airbnb-base',
+    'airbnb-typescript/base',
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'google',
+    'prettier',
   ],
-  parser: "@typescript-eslint/parser",
+  overrides: [],
+  parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: ["tsconfig.json", "tsconfig.dev.json"],
-    sourceType: "module",
+    tsconfigRootDir: __dirname,
+    project: ['tsconfig.json', 'tsconfig.dev.json'],
+    ecmaVersion: 'latest',
+    sourceType: 'module',
   },
   ignorePatterns: [
-    "/lib/**/*", // Ignore built files.
+    '/lib/**/*', // Ignore built files.
   ],
-  plugins: [
-    "@typescript-eslint",
-    "import",
-  ],
+  plugins: ['@typescript-eslint', 'prettier'],
   rules: {
-    "quotes": ["error", "double"],
-    "import/no-unresolved": 0,
+    'prettier/prettier': 'error',
+    'no-unused-vars': 'warn',
+    'no-console': 'off',
+    'func-names': 'off',
+    'no-process-exit': 'off',
+    'object-shorthand': 'off',
+    'class-methods-use-this': 'off',
+    'import/extensions': 'off',
   },
 };
