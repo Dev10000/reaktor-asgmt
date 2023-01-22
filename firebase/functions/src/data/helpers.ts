@@ -1,7 +1,7 @@
 import { parseStringPromise } from 'xml2js';
 import * as admin from 'firebase-admin';
 import { parseNumbers } from 'xml2js/lib/processors';
-import { dronesInstance } from './axios';
+import { dronesInstance, pilotsInstance } from './axios';
 import { DronesResponse, Report } from '../global';
 
 /**
@@ -55,6 +55,17 @@ export const fetchDrones = async () => {
     return jsonObj;
   } catch (error) {
     console.log('fetchData Validate Error: ', error);
+    throw error;
+  }
+};
+
+export const fetchPilot = async (id: string) => {
+  try {
+    const response = await pilotsInstance.get(`/${id}`);
+    const jsonObj = response.data;
+    return jsonObj;
+  } catch (error) {
+    console.log('fetchPilot Error');
     throw error;
   }
 };

@@ -2,9 +2,11 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import { setTimeout } from 'timers/promises';
 import { FieldValue } from 'firebase-admin/firestore';
+import { Change } from 'firebase-functions';
 import longPoll from './data/loadData';
 import getDistance from './helpers';
 import { Drone } from './global';
+import { fetchPilot } from './data/helpers';
 
 /**
  * @description - Fetch Data and Update Database - Long Polling Data
@@ -65,6 +67,9 @@ const fetchData = functions
 
 /**
  * @description - Update drone history every time snapshot is updated (every 2 seconds)
+ *
+ * Calculates also the distance between the drone and the origin (birdnest)
+ *
  * @function
  * @async
  * @param {object} change - The change event from the Firestore onUpdate.
@@ -103,4 +108,65 @@ const updateDroneHistory = functions
     return batch.commit();
   });
 
-export { fetchData, updateDroneHistory };
+const updatePilot = async (
+  change: Change<FirebaseFirestore.DocumentSnapshot>,
+) => {
+  try {
+    const id = change.after.data()?.serialNumber;
+    const pilotData = await fetchPilot(id);
+    await change.after.ref.update({ pilot: pilotData });
+  } catch (error) {
+    console.error(
+      `Error while updating pilot data for drone ${change.after.id}: ${error}`,
+    );
+  }
+};
+
+/**
+ * @description - Calculate shortest distance between all drones and update pilot data
+ *
+ * - Calculates the shortest distance for the drone
+ * - Gets the closest confirmed distance between all drones
+ * - Fetch pilot data if drone distance is less than 100 meters
+ * - Gets triggered every time the history collection is updated (every 2 seconds)
+ *
+ * @function
+ * @async
+ * @param {object} change - The change event from the Firestore onUpdate.
+ * @return {void}
+ * @listens - The change event from the Firestore onUpdate. 'history/{droneId}'
+ * @fires calculateShortestDistance - The calculateShortestDistance function.
+ * @fires updatePilot - The updatePilot function.
+ */
+const calculateShortestDistance = functions
+  .runWith({
+    // Keep 5 instances warm for this latency-critical function
+    minInstances: 5,
+  })
+  .firestore.document('history/{droneId}')
+  .onUpdate(async (change) => {
+    const newValue = change.after.data();
+    const oldValue = change.before.data();
+    const shortestDistance = Math.min(...newValue.distances);
+    const shortestDistanceOld = Math.min(...oldValue.distances);
+    if (shortestDistance === shortestDistanceOld && shortestDistanceOld) {
+      return;
+    }
+    // get the current shortest distance
+    const doc = await admin.firestore().collection('stats').doc('data').get();
+    const currentShortest = doc.data()?.shortestDistance;
+    if (!currentShortest || currentShortest > shortestDistance) {
+      newValue.shortestDistance = shortestDistance;
+      await admin
+        .firestore()
+        .collection('stats')
+        .doc('data')
+        .set({ ...newValue });
+    }
+
+    if (shortestDistance <= 100 && !newValue.pilot) updatePilot(change);
+
+    change.after.ref.update({ shortestDistance });
+  });
+
+export { fetchData, updateDroneHistory, calculateShortestDistance };
