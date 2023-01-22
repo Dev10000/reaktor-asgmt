@@ -1,11 +1,8 @@
-import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
 
-// Start writing functions
-// https://firebase.google.com/docs/functions/typescript
+admin.initializeApp();
 
-const helloWorld = functions.https.onRequest((_request, response) => {
-  functions.logger.info('Hello logs!', { structuredData: true });
-  response.send('Hello from Firebase!');
-});
-
-export default helloWorld;
+/**
+ * Endpoint - Update Lock - Start fetching data
+ */
+export * from './endpoints';
