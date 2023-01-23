@@ -17,6 +17,7 @@ import * as admin from 'firebase-admin';
  * https://us-central1-reaktor-asgmt.cloudfunctions.net/updateLock
  */
 const updateLock = functions.https.onRequest(async (req, res) => {
+  res.set('Access-Control-Allow-Origin', '*');
   const oneMinute = 60000;
   const collection = admin.firestore().collection('locks');
 

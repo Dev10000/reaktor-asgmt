@@ -5,17 +5,18 @@ import InfoBoxes from './InfoBoxes';
 
 const url = 'https://us-central1-reaktor-asgmt.cloudfunctions.net/updateLock';
 
-const getRequest = async () => {
-  const response = await fetch(url);
-  const data = await response.text();
-  return data;
-};
+// const getRequest = async () => {
+//   const response = await fetch(url, { cache: 'no-store' });
+//   const data = await response.text();
+//   return data;
+// };
 
 async function Home() {
   ChartJS.register();
-  getRequest().then((data) => {
-    console.log(data);
-  });
+
+  // getRequest().then((data) => {
+  //   console.log(data);
+  // });
 
   return (
     <main className="flex bg-gray-50 max-w-screen-2xl mx-auto">

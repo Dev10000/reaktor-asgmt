@@ -28,7 +28,7 @@ function StationRow({
       <td className="p-4 whitespace-nowrap text-sm font-normal text-gray-900">
         <span className="font-semibold">{drone1} </span>
         <p>{drone2}</p>
-        <p>Shortest distance: {distance ? rounding(distance) : ''}</p>
+        <p>Closest distance: {distance ? rounding(distance) : ''}</p>
       </td>
       <td className="p-4 whitespace-nowrap text-sm font-semibold text-gray-500">
         {email ? (

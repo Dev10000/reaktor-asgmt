@@ -1,9 +1,15 @@
 'use client';
 
-import { doc, onSnapshot } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  onSnapshot,
+  orderBy,
+  query,
+} from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import db from '../firebase';
-
+const url = 'https://us-central1-reaktor-asgmt.cloudfunctions.net/updateLock';
 const rounding = (num: number) =>
   Number(Math.round(Number(num.toString() + 'e2')) + 'e-2');
 
@@ -17,8 +23,22 @@ function InfoBoxes() {
       setDevice(() => doc.data()?.deviceInformation),
         setSnapshot(() => doc.data()?.capture);
     });
-    const q2 = doc(db, 'stats', 'data');
-    const unsubscribe2 = onSnapshot(q2, (doc) => setStats(() => doc.data()));
+    const q2 = query(
+      collection(db, 'history'),
+      orderBy('shortestDistance', 'asc'),
+    );
+    const unsubscribe2 = onSnapshot(q2, (querySnapshot) =>
+      setStats(() => querySnapshot?.docs[0]?.data()),
+    );
+
+    fetch(url)
+      .then((res) => res.text())
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, []);
 
   return (
