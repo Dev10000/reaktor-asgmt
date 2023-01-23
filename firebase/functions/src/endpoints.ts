@@ -29,7 +29,7 @@ const updateLock = functions.https.onRequest(async (req, res) => {
 
   const timeSpentKeepActive = Date.now() - lockRefKeepActive.get('timestamp');
 
-  // Start fetch request if KeepActive is older than 30 mim else just update the keepActive
+  // Start fetch request if KeepActive is older than 5 min else just update the keepActive
   if (!lockRefKeepActive || timeSpentKeepActive > 5 * oneMinute) {
     const timestamp = Date.now();
     await docLockStart.set({ timestamp: timestamp });

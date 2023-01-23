@@ -59,7 +59,7 @@ const fetchData = functions
     );
 
     if (noNewStart && timeSpentKeepActive < 5 * oneMinute) {
-      console.log('Run time less then 30 min KEEP ACTIVE!');
+      console.log('Run time less then 5 min KEEP ACTIVE!');
       return locks.doc('fetchDataLockStart').set({ timestamp: Date.now() });
     }
     return undefined;

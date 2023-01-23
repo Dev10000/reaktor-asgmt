@@ -21,10 +21,15 @@ const deleteStaleHistory = functions.pubsub
       .where('updatedAt', '<', cutoff);
     try {
       const snapshot = await stale.get();
+      const staleStats = admin.firestore().collection('stats').doc('data');
+      const statsSnapshot = await staleStats.get();
       const batch = admin.firestore().batch();
       snapshot.forEach((doc) => {
         batch.delete(doc.ref);
       });
+
+      if (statsSnapshot.exists) batch.delete(staleStats);
+
       return await batch.commit();
     } catch (err) {
       console.log(err);
